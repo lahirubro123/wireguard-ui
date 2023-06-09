@@ -18,11 +18,10 @@ A web user interface to manage your WireGuard setup.
 > ⚠️The default username and password are `admin`. Please change it to secure your setup.
 
 
-```
 
 ### Using Docker
 
 ```
 docker pull ngoduykhanh/wireguard-ui
-````
+```
 
