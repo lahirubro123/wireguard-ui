@@ -1,0 +1,62 @@
+To forward traffic from ports 80 and 443 to your application running on http://80.208.227.130:5000/ using nginx, you can follow these steps:
+
+Install nginx on your server if not already installed:
+
+14px
+sudo apt-get update
+sudo apt-get install nginx
+Open /etc/nginx/sites-available/default file by running the following command:
+
+14px
+sudo nano /etc/nginx/sites-available/default
+Replace the contents of the file with the following nginx configuration.
+
+14px
+server {
+        listen 80;
+        server_name YOUR_DOMAIN_NAME;
+
+        location / {
+            proxy_pass http://80.208.227.130:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        location ~ /.well-known/acme-challenge {
+            allow all;
+            root /var/www/html;
+        }
+}
+
+server {
+        listen 443 ssl;
+        server_name YOUR_DOMAIN_NAME;
+
+        ssl_certificate /etc/letsencrypt/live/YOUR_DOMAIN_NAME/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/YOUR_DOMAIN_NAME/privkey.pem;
+
+        location / {
+            proxy_pass http://80.208.227.130:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        location ~ /.well-known/acme-challenge {
+            allow all;
+            root /var/www/html;
+        }
+}
+Replace YOUR_DOMAIN_NAME with your own domain name or IP address.
+
+Save and close the file by pressing ctrl + X, then press Y to save the file changes.
+
+Reload nginx to apply the changes:
+
+
+14px
+sudo systemctl reload nginx
+These configuration blocks forwards incoming HTTP and HTTPS requests from port 80 and 443 to your application running on http://80.208.227.130:5000. The proxy headers ensure that the IP address of the original client is forwarded to your application. The block also includes Let's Encrypt ACME challenge handling to enable automated issuance of SSL certificates.
+
+Note that you may also need to configure your firewall to allow incoming traffic on ports 80 and 443.
